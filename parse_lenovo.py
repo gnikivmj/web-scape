@@ -20,6 +20,7 @@ and run Python code; now you just need to learn Python!
 import sys
 import requests
 import codecs
+import re
 from lxml import html
 
 #
@@ -41,22 +42,19 @@ def main():
   j = 0
   for items in li:
     j += 1
-    type = items[1].find('div/h1/a').text_content().strip()
-    if 'T440s' not in type:
+    model = items[1].find('div/h1/a').text_content().strip()
+    if 'T440s' not in model:
       continue
 
     prices = items[2].find('div[@class="pricing"]/dl/dd[@class="aftercoupon value"]')#/dl/dd[@class="ftercoupon value"]')
-    #if float(prices.text_content().strip().replace('$,', '')) > 850:
-    #  continue
+    p = re.sub('[$,]', '', prices.text_content().strip())
+    if float(p) > 900:
+      continue
       
-    print type
+    print model
     print items[1].find('div[@class="fbr-partnum"]').text_content().strip()
     features = items[1].find('ul[@class="fbr-features"]')
-    i = 0;
-    for feature in features:
-      i = i + 1
-      if i == 1:
-        continue
+    for feature in features[1:]:
       print " ".join(feature.text_content().strip().encode('ascii','ignore').split())
     prices = items[2].find('div[@class="pricing"]/dl/dd[@class="aftercoupon value"]')#/dl/dd[@class="ftercoupon value"]')
     print prices.text_content().strip()

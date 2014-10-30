@@ -5,7 +5,7 @@ import codecs
 import time
 from pyvirtualdisplay import Display
 
-url = "http://outlet.lenovo.com/outlet_us/laptops/#/?page-index=1&page-size=100&facet-1=3"
+url = "http://outlet.lenovo.com/outlet_us/laptops/#/?page-index=1&page-size=100&facet-1=3&sort-criteria=2"
 display = Display(visible=0, size=(800, 600))
 display.start()
 
