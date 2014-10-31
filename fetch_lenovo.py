@@ -25,9 +25,6 @@ def fetch_content():
     time.sleep(4)
     driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
 
-#  f = codecs.open("a.html", "w", "utf-8")
-#  f.write(driver.page_source)
-#  f.close()
   content = driver.page_source
   driver.close()
   display.stop()
@@ -38,9 +35,8 @@ def parse_content(content):
   tab_select = '//div[@class="facet-result cmpr_listing"]'
   li = tree.xpath(tab_select)
   print tab_select
-  j = 0
+
   for items in li:
-    j += 1
     model = items[1].find('div/h1/a').text_content().strip()
     if 'T440s' not in model and 'Carbon' not in model:
       continue
@@ -58,10 +54,10 @@ def parse_content(content):
     prices = items[2].find('div[@class="pricing"]/dl/dd[@class="aftercoupon value"]')#/dl/dd[@class="ftercoupon value"]')
     print prices.text_content().strip()
     print '-----'
-  print 'total count ', j
+  print 'total count ', len(li)
   print '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++'
-#
-  return 0
+
+  return
 
 if __name__ == "__main__":
    while True:
