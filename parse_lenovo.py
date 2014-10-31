@@ -33,7 +33,7 @@ def main():
     name = 'World'
   print 'Hello', name
 #  sys.setdefaultencoding('utf-8')
-  f = codecs.open('a.html', 'r', 'utf-8')
+  f = codecs.open('sample.html', 'r', 'utf-8')
 #  print f.read()
   tree = html.fromstring(f.read())
   tab_select = '//div[@class="facet-result cmpr_listing"]'
@@ -48,7 +48,7 @@ def main():
 
     prices = items[2].find('div[@class="pricing"]/dl/dd[@class="aftercoupon value"]')#/dl/dd[@class="ftercoupon value"]')
     p = re.sub('[$,]', '', prices.text_content().strip())
-    if float(p) > 900:
+    if float(p) > 10000:
       continue
       
     print model
@@ -57,6 +57,7 @@ def main():
     for feature in features[1:]:
       print " ".join(feature.text_content().strip().encode('ascii','ignore').split())
     prices = items[2].find('div[@class="pricing"]/dl/dd[@class="aftercoupon value"]')#/dl/dd[@class="ftercoupon value"]')
+    print 'Count:', items[2].find('div/span').text_content().strip()
     print prices.text_content().strip()
     print '-----'
   print 'total count ', j

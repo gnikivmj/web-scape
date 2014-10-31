@@ -27,6 +27,7 @@ def fetch_content():
 
   content = driver.page_source
   driver.close()
+  driver.quit()
   display.stop()
   return content
 
@@ -47,13 +48,19 @@ def parse_content(content):
       continue
 
     print model
+
+    # find the detail information
     print items[1].find('div[@class="fbr-partnum"]').text_content().strip()
     features = items[1].find('ul[@class="fbr-features"]')
     for feature in features[1:]:
       print " ".join(feature.text_content().strip().encode('ascii','ignore').split())
+
+    # find the price information
+    print 'Count:', items[2].find('div/span').text_content().strip()
     prices = items[2].find('div[@class="pricing"]/dl/dd[@class="aftercoupon value"]')#/dl/dd[@class="ftercoupon value"]')
     print prices.text_content().strip()
     print '-----'
+
   print 'total count ', len(li)
   print '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++'
 
