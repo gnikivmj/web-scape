@@ -43,7 +43,7 @@ def main():
   for items in li:
     j += 1
     model = items[1].find('div/h1/a').text_content().strip()
-    if 'T440s' not in model:
+    if 'T440s' not in model and 'Carbon' not in model:
       continue
 
     prices = items[2].find('div[@class="pricing"]/dl/dd[@class="aftercoupon value"]')#/dl/dd[@class="ftercoupon value"]')
@@ -60,6 +60,7 @@ def main():
     print prices.text_content().strip()
     print '-----'
   print 'total count ', j
+  print '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++'
 #  print 
 #  print li
 #  li = tree.xpath(tab_select)
