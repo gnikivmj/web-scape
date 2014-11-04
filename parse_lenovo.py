@@ -52,7 +52,9 @@ def main():
       continue
       
     print model
-    print items[1].find('div[@class="fbr-partnum"]').text_content().strip()
+    part = items[1].find('div[@class="fbr-partnum"]').text_content().strip()
+    print 'http://outlet.lenovo.com/outlet_us/itemdetails/' + re.search(r'Part number: (.+)', part).group(1) + '/445'
+    print part
     features = items[1].find('ul[@class="fbr-features"]')
     for feature in features[1:]:
       print " ".join(feature.text_content().strip().encode('ascii','ignore').split())

@@ -14,6 +14,9 @@ it = 6
 sleep_time = 300
 #url = "http://outlet.lenovo.com/outlet_us/laptops/#/?page-index=1&page-size=100&facet-1=3&sort-criteria=2"
 url = "http://outlet.lenovo.com/outlet_us/laptops/#/?page-index=1&page-size=100&facet-1=1&facet-1=3&facet-3=14&facet-3=19&facet-5=4&sort-criteria=2"
+
+model_to_look = [{'model':'T440s', 'price':800}, {'model':'Carbon', 'price':920}]
+
 def fetch_content():
   display = Display(visible=0, size=(800, 600))
   display.start()
@@ -38,25 +41,33 @@ def parse_content(content):
   print tab_select
 
   for items in li:
-    model = items[1].find('div/h1/a').text_content().strip()
-    if 'T440s' not in model and 'Carbon' not in model:
-      continue
-
     prices = items[2].find('div[@class="pricing"]/dl/dd[@class="aftercoupon value"]')#/dl/dd[@class="ftercoupon value"]')
     p = re.sub('[$,]', '', prices.text_content().strip())
-    if float(p) > 900:
+
+    model = items[1].find('div/h1/a').text_content().strip()
+
+    find = False
+    for m in model_to_look:
+      if m['model'] in model and float(p) < m['price']:
+        find = True
+
+    if find == False:
       continue
 
     print model
 
     # find the detail information
-    print items[1].find('div[@class="fbr-partnum"]').text_content().strip()
+    part = items[1].find('div[@class="fbr-partnum"]').text_content().strip()
+    print 'http://outlet.lenovo.com/outlet_us/itemdetails/' + re.search(r'Part number: (.+)', part).group(1) + '/445'
+    print part
     features = items[1].find('ul[@class="fbr-features"]')
     for feature in features[1:]:
       print " ".join(feature.text_content().strip().encode('ascii','ignore').split())
 
     # find the price information
-    print 'Count:', items[2].find('div/span').text_content().strip()
+    count = items[2].find('div/span')
+    if count is not None:
+      print 'Count:', count.text_content().strip()
     prices = items[2].find('div[@class="pricing"]/dl/dd[@class="aftercoupon value"]')#/dl/dd[@class="ftercoupon value"]')
     print prices.text_content().strip()
     print '-----'
@@ -67,13 +78,28 @@ def parse_content(content):
   return
 
 if __name__ == "__main__":
-   while True:
-    print "fetch content ..."
-    content = fetch_content()
-    print "parsing ...", time.ctime()
+  if len(sys.argv) >= 2:
+     option  = sys.argv[1]
+  else:
+     option = None
+
+  if option == '--local':
+    f = codecs.open('sample.html', 'r', 'utf-8')
+    content = f.read()
     parse_content(content)
-    print time.ctime(), "sleep for %s" % sleep_time
-    time.sleep(sleep_time)
+  elif option == '--save':
+    content = fetch_content()
+    f = codecs.open('sample.html', 'w', 'utf-8')
+    f.write(content)
+    f.close()
+  else:
+    while True:
+      print "fetch content ...", time.ctime()
+      content = fetch_content()
+      print "parsing ...", time.ctime()
+      parse_content(content)
+      print time.ctime(), "sleep for %s" % sleep_time
+      time.sleep(sleep_time)
 """
 display = Display(visible=0, size=(800, 600))
 display.start()
