@@ -10,12 +10,12 @@ import time
 import requests
 import re
 
-it = 6
+it = 25
 sleep_time = 300
 #url = "http://outlet.lenovo.com/outlet_us/laptops/#/?page-index=1&page-size=100&facet-1=3&sort-criteria=2"
 url = "http://outlet.lenovo.com/outlet_us/laptops/#/?page-index=1&page-size=100&facet-1=1&facet-1=3&facet-3=14&facet-3=19&facet-5=4&sort-criteria=2"
 
-model_to_look = [{'model':'T440s', 'price':800}, {'model':'Carbon', 'price':920}]
+model_to_look = [{'model':'T440s', 'price':800}, {'model':'Carbon', 'price':940}]
 
 def fetch_content():
   display = Display(visible=0, size=(800, 600))
@@ -40,6 +40,10 @@ def parse_content(content):
   li = tree.xpath(tab_select)
   print tab_select
 
+  print 'looking for:'
+  for m in model_to_look:
+    print m['model'] + ' < $' + str(m['price'])
+
   for items in li:
     prices = items[2].find('div[@class="pricing"]/dl/dd[@class="aftercoupon value"]')#/dl/dd[@class="ftercoupon value"]')
     p = re.sub('[$,]', '', prices.text_content().strip())
@@ -51,7 +55,7 @@ def parse_content(content):
       if m['model'] in model and float(p) < m['price']:
         find = True
 
-    if find == False:
+    if find != True:
       continue
 
     print model
@@ -98,7 +102,7 @@ if __name__ == "__main__":
       content = fetch_content()
       print "parsing ...", time.ctime()
       parse_content(content)
-      print time.ctime(), "sleep for %s" % sleep_time
+      print time.ctime(), "sleep for %ss" % sleep_time
       time.sleep(sleep_time)
 """
 display = Display(visible=0, size=(800, 600))
