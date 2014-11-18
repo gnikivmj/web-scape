@@ -21,17 +21,25 @@ def fetch_content():
   display = Display(visible=0, size=(800, 600))
   display.start()
 
-  driver = webdriver.Firefox()
-  driver.get(url)
-  driver.set_window_size(1000,1000)
-  for i in range(0, it):
-    time.sleep(4)
-    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+  try:
+    driver = webdriver.Firefox()
+    driver.set_page_load_timeout(15)
+    driver.get(url)
+    driver.set_window_size(1000,1000)
+    for i in range(0, it):
+      time.sleep(4)
+      driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
 
-  content = driver.page_source
-  driver.close()
-  driver.quit()
-  display.stop()
+    content = driver.page_source
+    driver.close()
+    driver.quit()
+    display.stop()
+  except:
+    print "exception !!!"
+    driver.close()
+    driver.quit()
+    display.stop()
+    content = None
   return content
 
 def parse_content(content):
@@ -100,8 +108,9 @@ if __name__ == "__main__":
     while True:
       print "fetch content ...", time.ctime()
       content = fetch_content()
-      print "parsing ...", time.ctime()
-      parse_content(content)
+      if content is not None:
+        print "parsing ...", time.ctime()
+        parse_content(content)
       print time.ctime(), "sleep for %ss" % sleep_time
       time.sleep(sleep_time)
 """
