@@ -12,8 +12,7 @@ import re
 
 it = 25
 sleep_time = 300
-#url = "http://outlet.lenovo.com/outlet_us/laptops/#/?page-index=1&page-size=100&facet-1=3&sort-criteria=2"
-url = "http://outlet.lenovo.com/outlet_us/laptops/#/?page-index=1&page-size=100&facet-1=1&facet-1=3&facet-3=14&facet-3=19&facet-5=4&sort-criteria=2"
+url ="http://outlet.lenovo.com/outlet_us/laptops/#facet-1=1,2,3&facet-2=1&facet-3=14"
 
 model_to_look = [{'model':'T440s', 'price':800}, {'model':'Carbon', 'price':940}]
 
@@ -44,7 +43,7 @@ def fetch_content():
 
 def parse_content(content):
   tree = html.fromstring(content)
-  tab_select = '//div[@class="facet-result cmpr_listing"]'
+  tab_select = '//div[@class="facetedResults-item only-allow-small-pricingSummary"]'
   li = tree.xpath(tab_select)
   print tab_select
 
@@ -53,10 +52,9 @@ def parse_content(content):
     print m['model'] + ' < $' + str(m['price'])
 
   for items in li:
-    prices = items[2].find('div[@class="pricing"]/dl/dd[@class="aftercoupon value"]')#/dl/dd[@class="ftercoupon value"]')
+    prices = items[2].find('div/div/dl/dd[@class="aftercoupon pricingSummary-details-final-price"]')
     p = re.sub('[$,]', '', prices.text_content().strip())
-
-    model = items[1].find('div/h1/a').text_content().strip()
+    model = items[1].find('h3/a').text_content().strip()
 
     find = False
     for m in model_to_look:
@@ -69,19 +67,21 @@ def parse_content(content):
     print model
 
     # find the detail information
-    part = items[1].find('div[@class="fbr-partnum"]').text_content().strip()
+    part = items[1].find('div').text_content().strip()
     print 'http://outlet.lenovo.com/outlet_us/itemdetails/' + re.search(r'Part number: (.+)', part).group(1) + '/445'
     print part
-    features = items[1].find('ul[@class="fbr-features"]')
+
+    features = items[2].find('div/div[@class="facetedResults-feature-list"]')
     for feature in features[1:]:
       print " ".join(feature.text_content().strip().encode('ascii','ignore').split())
 
     # find the price information
-    count = items[2].find('div/span')
+    count = items[2].find('div/div/div')#/div[@class="instock heart"]')
+    #print count.text_content()
     if count is not None:
       print 'Count:', count.text_content().strip()
-    prices = items[2].find('div[@class="pricing"]/dl/dd[@class="aftercoupon value"]')#/dl/dd[@class="ftercoupon value"]')
     print prices.text_content().strip()
+
     print '-----'
 
   print 'total count ', len(li)
