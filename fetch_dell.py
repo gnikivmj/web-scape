@@ -78,9 +78,9 @@ class dell_parser:
       j += 1
       title = items.find_class('fl-inv-head')[0].text_content().strip()
       if self.json['filter'] in title:
-        print title
+        #print title
         price = items.find_class('fl-inv-price')[0].text_content().strip()
-        print price
+        #print price
         details = items.find('tr/td/ul')
         detail = ""
         for d in details:
@@ -88,8 +88,8 @@ class dell_parser:
         #print detail
         #print "++++++"
         content += title + "\r\n\r\n" + detail + "\r\n" + price + "\r\n" + "++++++++++++++++++++\r\n\r\n"
-        print content
 
+    print content
     print 'total count ', j
     print '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++'
     if content != "":
