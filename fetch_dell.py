@@ -23,41 +23,84 @@ import codecs
 import re
 import time
 from lxml import html
+import json
 
 sleep_time = 300
 
-#
-# Define a main() function that prints a little greeting.
-def parse_content(content):
-  tree = html.fromstring(content)
-  tab_select = '//table[@class="fl-width100 fl-topline"]'
-  li = tree.xpath(tab_select)
-  #print tab_select
-  #print li
-  j = 0
-  for items in li:
-    j += 1
-    title = items.find_class('fl-inv-head')[0].text_content().strip()
-    if '7310' in title:
-      print title
-      print items.find_class('fl-inv-price')[0].text_content().strip()
-      print "++++++"
-  print 'total count ', j
-  print '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++'
+"""
+json sample:
+  {
+    "key": "key",
+    "sandbox": "sandbox",
+    "recipient": "example@example.com",
+    "filter": "7310"
+  }
+"""
+class dell_parser:
+  def __init__(self, config_file="fetch_dell.json"):
+    self.config = config_file
+    self.load_config()
 
-#  print 
-#  print li
-#  li = tree.xpath(tab_select)
-#  for items in li:
-#    if items[UID].text_content().strip() == user:
-#      print 'gid: ' + items[GID].text_content().strip()+ ' status: ' + items[STATUS].text_content().strip()
-#      print 'title: ' + items[SUBJECT].text_content().strip()
-#      print '------------------'
+  def load_config(self):
+    with open(self.config, "r") as input:
+      c = input.read()
+      print c
+      self.json = json.loads(c)
 
-def fetch_content():
- response = urllib2.urlopen('http://outlet.us.dell.com/ARBOnlineSales/Online/InventorySearch.aspx?brandid=1111&c=us&cs=22&l=en&s=dfh&dgc=IR&cid=258996&lid=4635114')
- html = response.read()
- return html 
+  def print_config(self):
+    print self.json
+
+  def send_mail(self, content=None):
+    request_url = 'https://api.mailgun.net/v3/{0}/messages'.format(self.json['sandbox'])
+    text = 'Hello from Mailgun'
+    if content:
+      text = content
+
+    request = requests.post(request_url, auth=('api', self.json['key']), data={
+      'from': 'dell@mailgun.org',
+      'to': self.json['recipient'],
+      'subject': 'Dell Outlet Alert',
+      'text': text
+      })
+
+    print 'Status: {0}'.format(request.status_code)
+    print 'Body:   {0}'.format(request.text)
+
+  def parse_content(self, content):
+    tree = html.fromstring(content)
+    tab_select = '//table[@class="fl-width100 fl-topline"]'
+    li = tree.xpath(tab_select)
+    #print tab_select
+    #print li
+    j = 0
+    content = ""
+    for items in li:
+      j += 1
+      title = items.find_class('fl-inv-head')[0].text_content().strip()
+      if self.json['filter'] in title:
+        print title
+        price = items.find_class('fl-inv-price')[0].text_content().strip()
+        print price
+        details = items.find('tr/td/ul')
+        detail = ""
+        for d in details:
+          detail += d.text_content().strip() + "\r\n"
+        #print detail
+        #print "++++++"
+        content += title + "\r\n\r\n" + detail + "\r\n" + price + "\r\n" + "++++++++++++++++++++\r\n\r\n"
+        print content
+
+    print 'total count ', j
+    print '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++'
+    if content != "":
+      self.send_mail(content)
+
+
+  def fetch_content(self):
+    response = urllib2.urlopen(self.json['url'])
+    html = response.read()
+    return html
+
 
 # This is the standard boilerplate that calls the main() function.
 if __name__ == '__main__':
@@ -66,6 +109,7 @@ if __name__ == '__main__':
   else:
      option = None
 
+  d = dell_parser()
   if option == '--local':
     f = codecs.open('sample.html', 'r', 'utf-8')
     content = f.read()
@@ -76,12 +120,13 @@ if __name__ == '__main__':
     f.write(content)
     f.close()
   else:
+    #d.print_config()
     while True:
       print "fetch content ...", time.ctime()
-      content = fetch_content()
+      content = d.fetch_content()
       if content is not None:
         print "parsing ...", time.ctime()
-        parse_content(content)
+        d.parse_content(content)
       print time.ctime(), "sleep for %ss" % sleep_time
       time.sleep(sleep_time)
 
