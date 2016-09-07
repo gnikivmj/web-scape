@@ -92,6 +92,15 @@ class dell_parser:
     print content
     print 'total count ', j
     print '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++'
+
+    #search for the family to double check if it has the item listed
+    if cotent == "":
+      family = tree.get_element_by_id('itemheader-FN')
+      for type in family:
+        type_name = type.text_content().strip()
+        if self.json['filter'] in type_name:
+          content += "find type: " + type_name + "\r\n"
+
     if content != "":
       self.send_mail(content)
 
@@ -129,4 +138,17 @@ if __name__ == '__main__':
         d.parse_content(content)
       print time.ctime(), "sleep for %ss" % sleep_time
       time.sleep(sleep_time)
+"""
+ipython test codes:
 
+import codecs
+f = codecs.open("dell.html", 'r', 'utf-8')
+content = f.read()
+from lxml import html
+tree = html.fromstring(content)
+tab_select = '//table[@class="fl-width100 fl-topline"]'
+li = tree.xpath(tab_select)
+item = li[0]
+price = items.find_class('fl-inv-price')[0].text_content().strip()
+
+"""
