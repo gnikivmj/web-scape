@@ -94,7 +94,7 @@ class dell_parser:
     print '+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++'
 
     #search for the family to double check if it has the item listed
-    if cotent == "":
+    if content == "":
       family = tree.get_element_by_id('itemheader-FN')
       for type in family:
         type_name = type.text_content().strip()
