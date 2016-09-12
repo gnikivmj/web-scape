@@ -95,7 +95,8 @@ class dell_parser:
 
     #search for the family to double check if it has the item listed
     if content == "":
-      family = tree.get_element_by_id('itemheader-FN')
+      default = []
+      family = tree.get_element_by_id('itemheader-FN', default)
       for type in family:
         type_name = type.text_content().strip()
         if self.json['filter'] in type_name:
