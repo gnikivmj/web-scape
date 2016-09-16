@@ -103,7 +103,8 @@ class dell_parser:
           content += "find type: " + type_name + "\r\n"
 
     if content != "":
-      content += self.json['url'] + '\r\n'
+      content += self.json['url'] + '\r\n\r\n'
+      content += time.ctime() + '\r\n'
       self.send_mail(content)
 
 
