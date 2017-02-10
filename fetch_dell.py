@@ -26,7 +26,7 @@ from lxml import html
 import json
 
 sleep_time = 300
-
+long_sleep = 60 * 30
 """
 json sample:
   {
@@ -106,12 +106,19 @@ class dell_parser:
       content += self.json['url'] + '\r\n\r\n'
       content += time.ctime() + '\r\n'
       self.send_mail(content)
+      return content
+
+    return None
 
 
   def fetch_content(self):
-    response = urllib2.urlopen(self.json['url'])
-    html = response.read()
-    return html
+    try:
+      response = urllib2.urlopen(self.json['url'])
+      html = response.read()
+      return html
+    except:
+      print "Error on open url..."
+      return None
 
 
 # This is the standard boilerplate that calls the main() function.
@@ -136,11 +143,14 @@ if __name__ == '__main__':
     while True:
       print "fetch content ...", time.ctime()
       content = d.fetch_content()
+      st = sleep_time
       if content is not None:
         print "parsing ...", time.ctime()
-        d.parse_content(content)
-      print time.ctime(), "sleep for %ss" % sleep_time
-      time.sleep(sleep_time)
+        find = d.parse_content(content)
+        if find is not None:
+          st = long_sleep
+      print time.ctime(), "sleep for %ss" % st
+      time.sleep(st)
 """
 ipython test codes:
 
